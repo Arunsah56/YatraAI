@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: yatraai_db
+    environment:
+      POSTGRES_DB: yatraai
+      POSTGRES_USER: yatraai_user
+      POSTGRES_PASSWORD: yatraai_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yatraai_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Application
+  web:
+    build: .
+    container_name: yatraai_app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1,web
+      DATABASE_ENGINE: django.db.backends.postgresql
+      DATABASE_NAME: yatraai
+      DATABASE_USER: yatraai_user
+      DATABASE_PASSWORD: yatraai_password
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Redis (Optional - for caching/celery)
+  redis:
+    image: redis:7-alpine
+    container_name: yatraai_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: yatraai_network

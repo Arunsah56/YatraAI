@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.pytest_cache
+.coverage
+htmlcov
+venv/
+env/
+.venv
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.sublime-project
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Other
+.env
+.env.local
+db.sqlite3
+node_modules/
+dist/
+build/
+.dockerignore
+Dockerfile
+docker-compose.yml
