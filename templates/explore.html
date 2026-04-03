@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Explore Header -->
+<div style="background: linear-gradient(135deg, #2d9b7a 0%, #06b6d4 100%); color: white; padding: 4rem 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50%; right: -10%; width: 500px; height: 500px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;"></div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <h1 style="font-family: 'Playfair Display'; font-weight: 700; margin-bottom: 1rem; font-size: 3.5rem;">
+            <i class="fas fa-compass"></i> Explore Nepal
+        </h1>
+        <p style="font-size: 1.1rem; opacity: 0.95; margin-bottom: 0; max-width: 600px;">
+            Discover hidden gems, authentic local experiences, and seasonal travel insights curated just for you.
+        </p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div style="background: #f3f4f6; padding: 3rem 0; min-height: 70vh;">
+    <div class="container">
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0; margin-bottom: 2rem; flex-wrap: wrap; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <button class="explore-tab active" data-tab="hidden-gems" style="flex: 1; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; background: white; border: none; cursor: pointer; color: #6b7280; transition: all 0.3s ease; border-bottom: 3px solid transparent;">
+                <i class="fas fa-gem"></i> Hidden Gems
+            </button>
+            <button class="explore-tab" data-tab="experiences" style="flex: 1; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; background: white; border: none; cursor: pointer; color: #6b7280; transition: all 0.3s ease; border-bottom: 3px solid transparent;">
+                <i class="fas fa-heart"></i> Local Experiences
+            </button>
+            <button class="explore-tab" data-tab="seasons" style="flex: 1; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; background: white; border: none; cursor: pointer; color: #6b7280; transition: all 0.3s ease; border-bottom: 3px solid transparent;">
+                <i class="fas fa-sun"></i> Seasonal Tips
+            </button>
+        </div>
+
+        <!-- Hidden Gems Tab -->
+        <div id="hidden-gems-tab" class="explore-tab-content active">
+            <!-- Search Bar -->
+            <div style="margin-bottom: 2rem;">
+                <input 
+                    type="text" 
+                    id="gemSearch" 
+                    class="form-control" 
+                    placeholder="🔍 Search hidden gems by name or location..."
+                    style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 1rem; font-size: 1rem; transition: all 0.3s ease;"
+                />
+            </div>
+
+            <!-- Loading State -->
+            <div class="gems-loading-spinner" id="gemsLoader" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; color: #2d9b7a; margin-bottom: 1rem; animation: spin 2s linear infinite;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <p style="color: #6b7280; font-size: 1.1rem;">Loading hidden gems...</p>
+            </div>
+
+            <!-- Hidden Gems Grid -->
+            <div id="gemsGrid" class="grid-cols-3" style="display: none;">
+                <!-- Gems will be populated here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="gemsEmpty" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <div style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1rem;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <p style="color: #9ca3af; font-size: 1.1rem;">No hidden gems found matching your search.</p>
+            </div>
+        </div>
+
+        <!-- Local Experiences Tab -->
+        <div id="experiences-tab" class="explore-tab-content" style="display: none;">
+            <!-- Search Bar -->
+            <div style="margin-bottom: 2rem;">
+                <input 
+                    type="text" 
+                    id="expSearch" 
+                    class="form-control" 
+                    placeholder="🔍 Search experiences..."
+                    style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 1rem; font-size: 1rem; transition: all 0.3s ease;"
+                />
+            </div>
+
+            <!-- Loading State -->
+            <div class="experiences-loading-spinner" id="experiencesLoader" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; color: #2d9b7a; margin-bottom: 1rem; animation: spin 2s linear infinite;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <p style="color: #6b7280; font-size: 1.1rem;">Loading local experiences...</p>
+            </div>
+
+            <!-- Experiences Grid -->
+            <div id="experiencesGrid" style="display: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Experiences will be populated here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="experiencesEmpty" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <div style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1rem;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <p style="color: #9ca3af; font-size: 1.1rem;">No experiences found matching your search.</p>
+            </div>
+        </div>
+
+        <!-- Seasonal Tips Tab -->
+        <div id="seasons-tab" class="explore-tab-content" style="display: none;">
+            <!-- Loading State -->
+            <div class="seasons-loading-spinner" id="seasonsLoader" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; color: #2d9b7a; margin-bottom: 1rem; animation: spin 2s linear infinite;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <p style="color: #6b7280; font-size: 1.1rem;">Loading seasonal tips...</p>
+            </div>
+
+            <!-- Seasons Grid -->
+            <div id="seasonsGrid" class="grid-cols-2" style="display: none;">
+                <!-- Seasons will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Details -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 16px; border: none;">
+            <div style="background: linear-gradient(135deg, #2d9b7a, #06b6d4); color: white; padding: 1.5rem;">
+                <h5 class="modal-title" id="modalTitle" style="margin: 0; font-size: 1.5rem; font-weight: 700;"></h5>
+            </div>
+            <div class="modal-body" id="modalBody" style="padding: 2rem;">
+                <!-- Content populated dynamically -->
+            </div>
+            <div style="padding: 1.5rem; border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn btn-outline" style="border: 2px solid #2d9b7a; color: #2d9b7a; width: 100%; padding: 0.875rem; border-radius: 12px; font-weight: 600; transition: all 0.3s ease;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .explore-tab:hover {
+        background: #f3f4f6 !important;
+        color: #2d9b7a !important;
+    }
+
+    .explore-tab.active {
+        color: #2d9b7a !important;
+        border-bottom-color: #2d9b7a !important;
+    }
+
+    .explore-tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .explore-tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .gem-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .gem-card:hover {
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        transform: translateY(-8px);
+    }
+
+    .gem-card-image {
+        position: relative;
+        height: 200px;
+        background: linear-gradient(135deg, #2d9b7a 0%, #06b6d4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 3rem;
+        overflow: hidden;
+    }
+
+    .gem-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .gem-card-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .gem-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a2332;
+        margin-bottom: 0.75rem;
+    }
+
+    .gem-card-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+        flex-wrap: wrap;
+    }
+
+    .gem-card-rating {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .gem-card-rating .star {
+        color: #f97316;
+    }
+
+    .gem-card-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: auto;
+        margin-top: 1rem;
+    }
+
+    .experience-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-left: 4px solid #2d9b7a;
+        padding: 1.75rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .experience-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        transform: translateX(4px);
+        border-color: #2d9b7a;
+    }
+
+    .experience-type {
+        display: inline-block;
+        background: rgba(45, 155, 122, 0.1);
+        color: #2d9b7a;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .experience-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a2332;
+        margin-bottom: 0.75rem;
+    }
+
+    .experience-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+        flex-wrap: wrap;
+    }
+
+    .experience-description {
+        color: #6b7280;
+        line-height: 1.6;
+    }
+
+    .season-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 2px solid #e5e7eb;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .season-card:hover {
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        border-color: #2d9b7a;
+        transform: translateY(-8px);
+    }
+
+    .season-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .season-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a2332;
+        margin-bottom: 0.5rem;
+    }
+
+    .season-months {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .season-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .season-stat {
+        padding: 1rem;
+        background: #f3f4f6;
+        border-radius: 12px;
+    }
+
+    .season-stat-label {
+        color: #6b7280;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .season-stat-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1a2332;
+    }
+
+    .modal-content {
+        border-radius: 16px !important;
+        border: none !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    @media (max-width: 768px) {
+        .grid-cols-2,
+        .grid-cols-3 {
+            grid-template-columns: 1fr !important;
+        }
+
+        .experience-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .season-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize modal
+    const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+
+    // Tab switching
+    document.querySelectorAll('.explore-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            
+            // Update active tab
+            document.querySelectorAll('.explore-tab').forEach(t => {
+                t.classList.remove('active');
+                t.style.color = '#6b7280';
+                t.style.borderBottomColor = 'transparent';
+            });
+            this.classList.add('active');
+            this.style.color = '#2d9b7a';
+            this.style.borderBottomColor = '#2d9b7a';
+
+            // Update active content
+            document.querySelectorAll('.explore-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Load data if needed
+            if (tabName === 'hidden-gems') {
+                loadHiddenGems();
+            } else if (tabName === 'experiences') {
+                loadExperiences();
+            } else if (tabName === 'seasons') {
+                loadSeasons();
+            }
+        });
+    });
+
+    // Load Hidden Gems
+    async function loadHiddenGems() {
+        const loader = document.getElementById('gemsLoader');
+        const grid = document.getElementById('gemsGrid');
+        const empty = document.getElementById('gemsEmpty');
+
+        loader.style.display = 'block';
+        grid.style.display = 'none';
+        empty.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/hidden-gems/?limit=20');
+            if (!response.ok) throw new Error('Failed to load hidden gems');
+
+            const data = await response.json();
+            const gems = data.results || data;
+
+            if (gems.length === 0) {
+                empty.style.display = 'block';
+            } else {
+                grid.innerHTML = gems.map(gem => `
+                    <div class="gem-card" onclick="showGemDetail(${gem.id}, '${gem.name}', '${gem.description}', '${gem.difficulty_level}', '${gem.location?.name || 'Nepal'}', ${gem.rating})">
+                        <div class="gem-card-image">
+                            <span>${gem.location?.emoji || '🏔️'}</span>
+                        </div>
+                        <div class="gem-card-body">
+                            <div class="gem-card-title">${gem.name}</div>
+                            <div class="gem-card-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> ${gem.location?.name || 'Nepal'}</span>
+                                <span style="background: rgba(45, 155, 122, 0.1); color: #2d9b7a; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; font-size: 0.8rem;">${gem.difficulty_level}</span>
+                            </div>
+                            <div class="gem-card-rating">
+                                ${Array.from({length: 5}, (_, i) => `
+                                    <i class="fas fa-star ${i < Math.round(gem.rating) ? 'star' : ''}" style="color: ${i < Math.round(gem.rating) ? '#f97316' : '#e5e7eb'}; font-size: 0.9rem;"></i>
+                                `).join('')}
+                                <span style="margin-left: 0.5rem; color: #6b7280; font-size: 0.85rem;">(${gem.rating})</span>
+                            </div>
+                            <p class="gem-card-description">${gem.description.substring(0, 100)}...</p>
+                        </div>
+                    </div>
+                `).join('');
+                grid.style.display = 'grid';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            empty.innerHTML = '<p style="color: #dc2626; font-size: 1.1rem;">Failed to load hidden gems</p>';
+            empty.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Load Local Experiences
+    async function loadExperiences() {
+        const loader = document.getElementById('experiencesLoader');
+        const grid = document.getElementById('experiencesGrid');
+        const empty = document.getElementById('experiencesEmpty');
+
+        loader.style.display = 'block';
+        grid.style.display = 'none';
+        empty.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/local-experiences/?limit=20');
+            if (!response.ok) throw new Error('Failed to load experiences');
+
+            const data = await response.json();
+            const experiences = data.results || data;
+
+            if (experiences.length === 0) {
+                empty.style.display = 'block';
+            } else {
+                grid.innerHTML = experiences.map(exp => `
+                    <div class="experience-card" onclick="showExperienceDetail(${exp.id}, '${exp.name}', '${exp.description}', '${exp.category}', '${exp.budget_level}')">
+                        <div class="experience-type">${exp.category}</div>
+                        <div class="experience-title">${exp.name}</div>
+                        <div class="experience-meta">
+                            <span><i class="fas fa-wallet"></i> ${exp.budget_level}</span>
+                            <span><i class="fas fa-clock"></i> ${exp.duration_hours || '2-3'} Hours</span>
+                            <span><i class="fas fa-users"></i> Max ${exp.max_group_size || '8'} People</span>
+                        </div>
+                        <p class="experience-description">${exp.description.substring(0, 150)}...</p>
+                    </div>
+                `).join('');
+                grid.style.display = 'flex';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            empty.innerHTML = '<p style="color: #dc2626; font-size: 1.1rem;">Failed to load experiences</p>';
+            empty.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Load Seasonal Tips
+    async function loadSeasons() {
+        const loader = document.getElementById('seasonsLoader');
+        const grid = document.getElementById('seasonsGrid');
+
+        loader.style.display = 'block';
+        grid.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/seasonal-tips/?limit=20');
+            if (!response.ok) throw new Error('Failed to load seasonal tips');
+
+            const data = await response.json();
+            const seasons = data.results || data;
+
+            const seasonData = {
+                'spring': { icon: '🌸', months: 'March - May', temp: '15-25°C', best_for: 'Trekking & Views' },
+                'summer': { icon: '☀️', months: 'June - August', temp: '20-30°C', best_for: 'Adventure' },
+                'autumn': { icon: '🍂', months: 'Sept - November', temp: '10-20°C', best_for: 'Mountain Clarity' },
+                'winter': { icon: '❄️', months: 'Dec - February', temp: '0-15°C', best_for: 'Festivals' }
+            };
+
+            grid.innerHTML = seasons.map(season => {
+                const info = seasonData[season.season.toLowerCase()] || { icon: '🏔️', months: '', temp: '', best_for: '' };
+                return `
+                    <div class="season-card">
+                        <div class="season-icon">${info.icon}</div>
+                        <div class="season-title">${season.season}</div>
+                        <div class="season-months">${info.months}</div>
+                        <p style="color: #6b7280; margin-bottom: 1rem; line-height: 1.6;">${season.tips.substring(0, 150)}...</p>
+                        <div class="season-info">
+                            <div class="season-stat">
+                                <div class="season-stat-label">Temperature</div>
+                                <div class="season-stat-value">${info.temp}</div>
+                            </div>
+                            <div class="season-stat">
+                                <div class="season-stat-label">Best For</div>
+                                <div class="season-stat-value" style="font-size: 0.9rem;">${info.best_for}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            grid.style.display = 'grid';
+        } catch (error) {
+            console.error('Error:', error);
+            grid.innerHTML = '<div style="grid-column: 1/-1; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 12px; padding: 2rem; text-align: center; color: #b91c1c;">Failed to load seasonal tips</div>';
+            grid.style.display = 'grid';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Show details modal
+    function showGemDetail(id, name, description, difficulty, location, rating) {
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalBody').innerHTML = `
+            <div>
+                <p style="color: #6b7280; margin-bottom: 1rem;"><strong>Location:</strong> ${location}</p>
+                <p style="color: #6b7280; margin-bottom: 1rem;"><strong>Difficulty:</strong> ${difficulty}</p>
+                <p style="color: #6b7280; margin-bottom: 1rem;"><strong>Rating:</strong> ${rating}/5 ⭐</p>
+                <p style="color: #6b7280; margin-bottom: 0; line-height: 1.6;">${description}</p>
+            </div>
+        `;
+        detailsModal.show();
+    }
+
+    function showExperienceDetail(id, name, description, category, budget) {
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalBody').innerHTML = `
+            <div>
+                <p style="color: #6b7280; margin-bottom: 1rem;"><strong>Category:</strong> <span style="background: rgba(45, 155, 122, 0.1); color: #2d9b7a; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600;">${category}</span></p>
+                <p style="color: #6b7280; margin-bottom: 1rem;"><strong>Budget Level:</strong> ${budget}</p>
+                <p style="color: #6b7280; margin-bottom: 0; line-height: 1.6;">${description}</p>
+            </div>
+        `;
+        detailsModal.show();
+    }
+
+    // Load data on first tab by default
+    document.addEventListener('DOMContentLoaded', () => {
+        loadHiddenGems();
+    });
+</script>
+{% endblock %}

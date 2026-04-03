@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Enhanced Hero Section -->
+<div class="hero" style="background: linear-gradient(135deg, #2d9b7a 0%, #06b6d4 100%); min-height: 600px; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row align-items-center" style="min-height: 500px;">
+            <div class="col-lg-6">
+                <div style="animation: slideInDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                    <h1 style="color: white; font-size: 4rem; font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem;">
+                        Plan Your Nepal Adventure
+                    </h1>
+                    <p style="color: rgba(255,255,255,0.95); font-size: 1.3rem; margin-bottom: 2rem; max-width: 500px; line-height: 1.8;">
+                        Let AI craft your perfect itinerary. Tell us your preferences, and get a personalized day-by-day travel plan tailored just for you.
+                    </p>
+                    <button class="btn btn-light" style="padding: 0.875rem 2rem; font-weight: 600; border-radius: 12px; transition: all 0.3s ease;" 
+                        onclick="document.getElementById('planSection').scrollIntoView({ behavior: 'smooth' })">
+                        <i class="fas fa-arrow-down"></i> Get Started
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-6" style="display: flex; justify-content: center; align-items: center;">
+                <div style="font-size: 6rem; animation: bounce 2s infinite; opacity: 0.2;">
+                    <i class="fas fa-mountain"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Planning Section -->
+<div id="planSection" style="padding: 4rem 0; background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);">
+    <div class="container">
+        <!-- Section Header -->
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="color: #1a2332; font-size: 2.5rem; margin-bottom: 1rem;">
+                Tell Us About Your Trip
+            </h2>
+            <p style="color: #6b7280; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                The more details you provide, the better your personalized itinerary will be
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, rgba(45, 155, 122, 0.05), rgba(6, 182, 212, 0.05)); border-bottom: 2px solid #e5e7eb; padding: 2rem;">
+                        <h3 style="color: #1a2332; display: flex; align-items: center; gap: 0.75rem; margin: 0;">
+                            <i class="fas fa-compass" style="color: #2d9b7a; font-size: 1.5rem;"></i>
+                            Plan Your Trip
+                        </h3>
+                    </div>
+
+                    <div style="padding: 2.5rem;">
+                        <form id="itineraryForm">
+                            <!-- Destination Row -->
+                            <div class="mb-4">
+                                <label for="destination" class="form-label">
+                                    <i class="fas fa-map-marker-alt" style="color: #2d9b7a;"></i> 
+                                    <strong>Where are you headed?</strong>
+                                </label>
+                                <select class="form-select" id="destination" name="destination" required 
+                                    style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 0.875rem; font-size: 1rem;">
+                                    <option value="">-- Select a destination --</option>
+                                    <option value="Kathmandu">🏰 Kathmandu - The Cultural Heart</option>
+                                    <option value="Pokhara">🏔️ Pokhara - Adventure Gateway</option>
+                                    <option value="Chitwan">🦁 Chitwan - Wildlife Paradise</option>
+                                    <option value="Nagarkot">🌅 Nagarkot - Mountain Views</option>
+                                    <option value="Bhaktapur">🏛️ Bhaktapur - Ancient City</option>
+                                    <option value="Bandipur">🎨 Bandipur - Heritage Town</option>
+                                    <option value="Ilam">🌾 Ilam - Tea Country</option>
+                                    <option value="Rara Lake">💧 Rara Lake - Hidden Gem</option>
+                                    <option value="Janakpur">🛕 Janakpur - Spiritual Site</option>
+                                    <option value="Hetauda">🏞️ Hetauda - Hidden Treasures</option>
+                                </select>
+                                <small style="color: #6b7280; margin-top: 0.5rem; display: block;">Pick a destination or we'll create a multi-city adventure</small>
+                            </div>
+
+                            <!-- Two Column Layout -->
+                            <div class="row">
+                                <!-- Duration -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="days" class="form-label">
+                                        <i class="fas fa-calendar-days" style="color: #2d9b7a;"></i> 
+                                        <strong>How many days?</strong>
+                                    </label>
+                                    <div style="display: flex; gap: 0.75rem;">
+                                        <input type="range" class="form-range" id="daysSlider" name="duration_slider" min="1" max="30" value="5" 
+                                            style="flex: 1; accent-color: #2d9b7a; cursor: pointer;">
+                                        <input type="number" class="form-control" id="days" name="number_of_days" 
+                                               min="1" max="30" value="5" required style="width: 80px; border-radius: 12px;">
+                                    </div>
+                                    <small style="color: #6b7280; margin-top: 0.5rem; display: block;">3 days to a month-long adventure</small>
+                                </div>
+
+                                <!-- Budget -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="budget" class="form-label">
+                                        <i class="fas fa-wallet" style="color: #2d9b7a;"></i> 
+                                        <strong>What's your budget?</strong>
+                                    </label>
+                                    <select class="form-select" id="budget" name="budget_level" required 
+                                        style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 0.875rem;">
+                                        <option value="low">💰 Budget Traveler (< NPR 2000/day)</option>
+                                        <option value="mid" selected>💵 Mid-Range (NPR 2000-5000/day)</option>
+                                        <option value="luxury">💎 Luxury (> NPR 5000/day)</option>
+                                    </select>
+                                    <small style="color: #6b7280; margin-top: 0.5rem; display: block;">Affects lodging, food & activities</small>
+                                </div>
+                            </div>
+
+                            <!-- Two Column Layout -->
+                            <div class="row">
+                                <!-- Group Size -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="groupSize" class="form-label">
+                                        <i class="fas fa-users" style="color: #2d9b7a;"></i> 
+                                        <strong>How many travelers?</strong>
+                                    </label>
+                                    <input type="number" class="form-control" id="groupSize" name="group_size" 
+                                           min="1" max="20" value="1" required style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 0.875rem;">
+                                    <small style="color: #6b7280; margin-top: 0.5rem; display: block;">1 person to large group</small>
+                                </div>
+
+                                <!-- Traveler Type -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="travelersType" class="form-label">
+                                        <i class="fas fa-user-tie" style="color: #2d9b7a;"></i> 
+                                        <strong>Who are you with?</strong>
+                                    </label>
+                                    <select class="form-select" id="travelersType" name="travelers_type" required 
+                                        style="border-radius: 12px; border: 2px solid #e5e7eb; padding: 0.875rem;">
+                                        <option value="solo">🚶 Solo Traveler</option>
+                                        <option value="couple">👫 Couple</option>
+                                        <option value="family">👨‍👩‍👧‍👦 Family</option>
+                                        <option value="group">👥 Group</option>
+                                    </select>
+                                    <small style="color: #6b7280; margin-top: 0.5rem; display: block;">We'll tailor activities accordingly</small>
+                                </div>
+                            </div>
+
+                            <hr style="border: 1px solid #e5e7eb; margin: 2rem 0;">
+
+                            <!-- Interests -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-heart" style="color: #2d9b7a;"></i> 
+                                    <strong>What interests you?</strong>
+                                </label>
+                                <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 1rem;">
+                                    Select at least one interest to personalize your itinerary
+                                </p>
+                                <div id="interestsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;">
+                                    <!-- Interests will be populated here -->
+                                </div>
+                                <input type="hidden" id="interests" name="interests">
+                            </div>
+
+                            <hr style="border: 1px solid #e5e7eb; margin: 2rem 0;">
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary w-100" id="submitBtn"
+                                style="background: linear-gradient(135deg, #2d9b7a, #4db8a0); border: none; padding: 1rem; font-size: 1.1rem; font-weight: 600; border-radius: 12px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(45, 155, 122, 0.3);">
+                                <i class="fas fa-wand-magic-sparkles"></i> Generate My Perfect Itinerary
+                            </button>
+                        </form>
+
+                        <!-- Loading State -->
+                        <div class="loading-spinner" id="loadingSpinner" style="display: none; text-align: center; padding: 2rem;">
+                            <div style="font-size: 3rem; color: #2d9b7a; margin-bottom: 1rem; animation: spin 2s linear infinite;">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                            </div>
+                            <p style="color: #6b7280; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                <strong>AI is crafting your perfect itinerary...</strong>
+                            </p>
+                            <p style="color: #9ca3af; font-size: 0.95rem;">
+                                This may take 10-15 seconds ✨ Our GPT-4 AI is personalizing every detail
+                            </p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div class="alert" id="errorMessage" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid #fca5a5; border-radius: 12px; padding: 1rem; margin-top: 1rem; color: #991b1b;">
+                            <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Cards Section -->
+        <div class="row mt-5" style="margin-top: 4rem;">
+            <div class="col-md-4 mb-3">
+                <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; text-align: center; padding: 2rem; height: 100%; background: linear-gradient(135deg, rgba(45, 155, 122, 0.05), rgba(6, 182, 212, 0.05)); transition: all 0.3s ease; cursor: pointer;" 
+                    onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.12)';" 
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)';">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: #2d9b7a;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h5 style="color: #1a2332; font-weight: 700; margin-bottom: 0.75rem;">AI-Powered Planning</h5>
+                    <p style="color: #6b7280; margin: 0;">GPT-4 creates personalized itineraries based on your preferences and travel style</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; text-align: center; padding: 2rem; height: 100%; background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(249, 115, 22, 0.05)); transition: all 0.3s ease; cursor: pointer;" 
+                    onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.12)';" 
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)';">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: #f97316;">
+                        <i class="fas fa-map-pin"></i>
+                    </div>
+                    <h5 style="color: #1a2332; font-weight: 700; margin-bottom: 0.75rem;">Local Expertise</h5>
+                    <p style="color: #6b7280; margin: 0;">Hidden gems, budget tips, seasonal advice from Nepal travel experts</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; text-align: center; padding: 2rem; height: 100%; background: linear-gradient(135deg, rgba(249, 115, 22, 0.05), rgba(45, 155, 122, 0.05)); transition: all 0.3s ease; cursor: pointer;" 
+                    onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.12)';" 
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)';">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: #06b6d4;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h5 style="color: #1a2332; font-weight: 700; margin-bottom: 0.75rem;">Instant Results</h5>
+                    <p style="color: #6b7280; margin: 0;">Get day-by-day activities, costs, transport & travel tips in seconds</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Define interests
+    const INTERESTS = [
+        { id: 'adventure', label: 'Adventure', icon: '🏔️' },
+        { id: 'culture', label: 'Culture', icon: '🏯' },
+        { id: 'trekking', label: 'Trekking', icon: '🥾' },
+        { id: 'relaxation', label: 'Relaxation', icon: '🧘' },
+        { id: 'spiritual', label: 'Spiritual', icon: '🙏' },
+        { id: 'food', label: 'Food & Cuisine', icon: '🍛' },
+        { id: 'nature', label: 'Nature', icon: '🌿' },
+        { id: 'photography', label: 'Photography', icon: '📸' },
+    ];
+
+    // Initialize interests UI
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('interestsContainer');
+        const selectedInterests = new Set();
+
+        INTERESTS.forEach(interest => {
+            const tag = document.createElement('button');
+            tag.type = 'button';
+            tag.className = 'tag';
+            tag.textContent = `${interest.icon} ${interest.label}`;
+            tag.style.cssText = `
+                background: #f3f4f6;
+                border: 2px solid #e5e7eb;
+                color: #1a2332;
+                padding: 0.625rem 1rem;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-family: 'Poppins', sans-serif;
+            `;
+            tag.onmouseover = function() {
+                if (!this.classList.contains('active')) {
+                    this.style.borderColor = '#2d9b7a';
+                    this.style.backgroundColor = 'rgba(45, 155, 122, 0.05)';
+                }
+            };
+            tag.onmouseout = function() {
+                if (!this.classList.contains('active')) {
+                    this.style.borderColor = '#e5e7eb';
+                    this.style.backgroundColor = '#f3f4f6';
+                }
+            };
+            tag.onclick = function(e) {
+                e.preventDefault();
+                this.classList.toggle('active');
+                if (this.classList.contains('active')) {
+                    selectedInterests.add(interest.id);
+                    this.style.backgroundColor = '#2d9b7a';
+                    this.style.color = 'white';
+                    this.style.borderColor = '#2d9b7a';
+                } else {
+                    selectedInterests.delete(interest.id);
+                    this.style.backgroundColor = '#f3f4f6';
+                    this.style.color = '#1a2332';
+                    this.style.borderColor = '#e5e7eb';
+                }
+                document.getElementById('interests').value = JSON.stringify(Array.from(selectedInterests));
+            };
+            container.appendChild(tag);
+        });
+
+        // Slider sync
+        document.getElementById('daysSlider').addEventListener('input', function() {
+            document.getElementById('days').value = this.value;
+        });
+
+        document.getElementById('days').addEventListener('change', function() {
+            const value = Math.max(1, Math.min(30, this.value));
+            this.value = value;
+            document.getElementById('daysSlider').value = value;
+        });
+
+        // Form Submit
+        document.getElementById('itineraryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (selectedInterests.size === 0) {
+                showError('Please select at least one interest');
+                return;
+            }
+
+            const formData = {
+                destination: document.getElementById('destination').value,
+                number_of_days: parseInt(document.getElementById('days').value),
+                budget_level: document.getElementById('budget').value,
+                interests: Array.from(selectedInterests),
+                group_size: parseInt(document.getElementById('groupSize').value),
+                travelers_type: document.getElementById('travelersType').value,
+            };
+
+            await generateItinerary(formData);
+        });
+    });
+
+    // Generate Itinerary using API wrapper
+    async function generateItinerary(data) {
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+        loadingSpinner.style.display = 'block';
+        errorMessage.style.display = 'none';
+
+        try {
+            const result = await API.generateItinerary(data);
+            
+            // Store in session and redirect
+            sessionStorage.setItem('lastItinerary', JSON.stringify(result.data));
+            window.location.href = `/page/results/${result.data.id}/`;
+            
+        } catch (error) {
+            console.error('Error:', error);
+            showError(error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            loadingSpinner.style.display = 'none';
+        }
+    }
+
+    // Show Error
+    function showError(message) {
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+</script>
+{% endblock %}

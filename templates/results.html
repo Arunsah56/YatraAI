@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Results Header Hero -->
+<div style="background: linear-gradient(135deg, #2d9b7a 0%, #06b6d4 100%); color: white; padding: 3rem 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50%; right: -10%; width: 500px; height: 500px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;"></div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+                <h1 id="itineraryTitle" style="font-family: 'Playfair Display'; font-weight: 700; margin-bottom: 0.75rem; font-size: 3rem;">
+                    Your Perfect Itinerary
+                </h1>
+                <p id="itinerarySubtitle" style="font-size: 1.1rem; opacity: 0.95; margin-bottom: 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <!-- Days, budget info -->
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <div style="background: rgba(255,255,255,0.15); padding: 1.75rem; border-radius: 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Estimated Budget</div>
+                    <div id="totalBudget" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">NPR 0</div>
+                    <div style="font-size: 0.9rem; opacity: 0.85;" id="dailyBudget">Daily: NPR 0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div style="background: #f3f4f6; padding: 3rem 0; min-height: 70vh;">
+    <div class="container">
+        <!-- Loading State -->
+        <div class="loading-spinner" id="resultsLoader" style="text-align: center; padding: 3rem; display: none;">
+            <div style="font-size: 4rem; color: #2d9b7a; margin-bottom: 1rem; animation: spin 2s linear infinite;">
+                <i class="fas fa-wand-magic-sparkles"></i>
+            </div>
+            <p style="color: #6b7280; font-size: 1.1rem;">
+                <strong>Loading your itinerary...</strong>
+            </p>
+        </div>
+
+        <!-- Results Content (Hidden Initially) -->
+        <div id="resultsContent" style="display: none;">
+            <div class="row" style="gap: 2rem;">
+                <!-- Main Itinerary -->
+                <div class="col-lg-8">
+                    <!-- Safety Alert -->
+                    <div id="safetyCard" style="display: none; margin-bottom: 2rem;">
+                        <div style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05)); border: 1px solid #fed7aa; border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem;">
+                            <div style="color: #f97316; font-size: 1.5rem; flex-shrink: 0;">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h5 style="color: #d97706; margin-bottom: 0.5rem; font-weight: 700;">Safety & Important Notes</h5>
+                                <p id="safetyNotes" style="margin: 0; color: #92400e; line-height: 1.6;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Days Timeline -->
+                    <div id="daysContainer">
+                        <!-- Days will be populated here -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="{% url 'index' %}" class="btn btn-outline" 
+                            style="border: 2px solid #2d9b7a; color: #2d9b7a; padding: 0.875rem 1.75rem; border-radius: 12px; font-weight: 600; transition: all 0.3s ease; text-decoration: none;"
+                            onmouseover="this.style.background='#2d9b7a'; this.style.color='white';"
+                            onmouseout="this.style.background='transparent'; this.style.color='#2d9b7a';">
+                            <i class="fas fa-arrow-left"></i> Plan Another Trip
+                        </a>
+                        <button class="btn btn-primary" style="background: linear-gradient(135deg, #2d9b7a, #4db8a0); border: none; padding: 0.875rem 1.75rem; border-radius: 12px; font-weight: 600; color: white; cursor: pointer; transition: all 0.3s ease;" 
+                            onclick="printItinerary()"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(45, 155, 122, 0.3)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                            <i class="fas fa-print"></i> Print / Save as PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4" style="display: flex; flex-direction: column; gap: 2rem;">
+                    <!-- Budget Breakdown Card -->
+                    <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; position: sticky; top: 120px;">
+                        <div style="background: linear-gradient(135deg, rgba(45, 155, 122, 0.05), rgba(6, 182, 212, 0.05)); border-bottom: 2px solid #e5e7eb; padding: 1.5rem;">
+                            <h5 style="margin: 0; color: #1a2332; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fas fa-chart-pie" style="color: #2d9b7a;"></i> Budget Details
+                            </h5>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0; border-bottom: 1px solid #e5e7eb;">
+                                <span style="color: #6b7280;">Accommodation</span>
+                                <span style="font-weight: 600; color: #2d9b7a;" id="budgetAccommodation">NPR 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0; border-bottom: 1px solid #e5e7eb;">
+                                <span style="color: #6b7280;">Food & Dining</span>
+                                <span style="font-weight: 600; color: #2d9b7a;" id="budgetMeals">NPR 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0; border-bottom: 1px solid #e5e7eb;">
+                                <span style="color: #6b7280;">Activities & Tours</span>
+                                <span style="font-weight: 600; color: #2d9b7a;" id="budgetActivities">NPR 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0; border-bottom: 1px solid #e5e7eb;">
+                                <span style="color: #6b7280;">Transportation</span>
+                                <span style="font-weight: 600; color: #2d9b7a;" id="budgetTransport">NPR 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0;">
+                                <span style="color: #6b7280;">Miscellaneous</span>
+                                <span style="font-weight: 600; color: #2d9b7a;" id="budgetMisc">NPR 0</span>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #1a2332; font-size: 1.1rem;">TOTAL</strong>
+                                <strong style="color: #2d9b7a; font-size: 1.3rem;" id="sidebarTotal">NPR 0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Travel Tips Card -->
+                    <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(45, 155, 122, 0.05)); border-bottom: 2px solid #e5e7eb; padding: 1.5rem;">
+                            <h5 style="margin: 0; color: #1a2332; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fas fa-lightbulb" style="color: #f97316;"></i> Quick Tips
+                            </h5>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div id="quickTips">
+                                <!-- Tips will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Card -->
+                    <div class="card" style="border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(249, 115, 22, 0.05));">
+                        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1)); border-bottom: 2px solid #fee2e2; padding: 1.5rem;">
+                            <h5 style="margin: 0; color: #7f1d1d; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fas fa-phone" style="color: #dc2626;"></i> Emergency Contacts
+                            </h5>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="margin-bottom: 1.25rem;">
+                                <strong style="color: #1f2937;">Police</strong><br>
+                                <p style="margin: 0.25rem 0 0; font-size: 1.1rem; color: #111827; font-weight: 600;">100</p>
+                                <small style="color: #6b7280;">National emergency number</small>
+                            </div>
+                            <div style="margin-bottom: 1.25rem;">
+                                <strong style="color: #1f2937;">Ambulance</strong><br>
+                                <p style="margin: 0.25rem 0 0; font-size: 1.1rem; color: #111827; font-weight: 600;">100</p>
+                                <small style="color: #6b7280;">Medical emergency</small>
+                            </div>
+                            <div>
+                                <strong style="color: #1f2937;">Tourist Police</strong><br>
+                                <p style="margin: 0.25rem 0 0; font-size: 1.1rem; color: #111827; font-weight: 600;">+977-1-4247041</p>
+                                <small style="color: #6b7280;">Kathmandu-based</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" style="display: none;">
+            <div class="card" style="border: 2px solid #fca5a5; border-radius: 16px; background: rgba(239, 68, 68, 0.05); padding: 2rem; text-align: center;">
+                <div style="font-size: 3rem; color: #dc2626; margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h4 style="color: #7f1d1d; margin-bottom: 0.5rem;">Unable to Load Itinerary</h4>
+                <p id="errorMessage" style="color: #991b1b; margin-bottom: 1.5rem;">The itinerary could not be loaded. Please try again.</p>
+                <a href="{% url 'index' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #2d9b7a, #4db8a0); border: none; padding: 0.875rem 1.75rem; border-radius: 12px; font-weight: 600; color: white; text-decoration: none;">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .day-container {
+        margin-bottom: 2.5rem;
+    }
+
+    .day-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .day-number {
+        background: linear-gradient(135deg, #2d9b7a 0%, #06b6d4 100%);
+        color: white;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(45, 155, 122, 0.3);
+    }
+
+    .day-number .day-label {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .day-number .day-value {
+        font-size: 2.5rem;
+    }
+
+    .day-info h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1a2332;
+    }
+
+    .day-info p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .accommodation-box {
+        background: linear-gradient(135deg, rgba(45, 155, 122, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+        padding: 1.75rem;
+        border-radius: 14px;
+        border: 1px solid #cffafe;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(45, 155, 122, 0.1);
+    }
+
+    .accommodation-box h5 {
+        margin-bottom: 1rem;
+        color: #1a2332;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .accommodation-box h5 i {
+        color: #2d9b7a;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .activity-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #2d9b7a;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity-time {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .activity-type {
+        display: inline-block;
+        background: rgba(45, 155, 122, 0.1);
+        color: #2d9b7a;
+        padding: 0.35rem 0.875rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Get itinerary ID from URL
+    const itineraryId = window.location.pathname.split('/').filter(Boolean).pop();
+
+    // Load itinerary on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        document.getElementById('resultsLoader').style.display = 'block';
+        await loadItinerary(itineraryId);
+    });
+
+    // Load Itinerary from API
+    async function loadItinerary(id) {
+        try {
+            const response = await fetch(`/api/itinerary/${id}/`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to load itinerary');
+            }
+
+            const itinerary = await response.json();
+            renderItinerary(itinerary);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('resultsLoader').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMessage').textContent = error.message;
+        }
+    }
+
+    // Render Itinerary
+    function renderItinerary(itinerary) {
+        // Hide loader
+        document.getElementById('resultsLoader').style.display = 'none';
+        document.getElementById('resultsContent').style.display = 'block';
+
+        // Set title and subtitle
+        document.getElementById('itineraryTitle').textContent = itinerary.title || `Your ${itinerary.number_of_days}-Day Adventure`;
+        document.getElementById('itinerarySubtitle').innerHTML = `
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                <i class="fas fa-calendar"></i> ${itinerary.number_of_days} Days
+            </span>
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                <i class="fas fa-users"></i> ${itinerary.group_size} ${itinerary.group_size === 1 ? 'Traveler' : 'Travelers'}
+            </span>
+            <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                <i class="fas fa-wallet"></i> ${itinerary.budget_level_display || 'Mid-Range'}
+            </span>
+        `;
+
+        // Set budget
+        const budget = itinerary.estimated_total_budget_npr || 0;
+        const dailyBudget = Math.round(budget / itinerary.number_of_days);
+        document.getElementById('totalBudget').textContent = `NPR ${budget.toLocaleString()}`;
+        document.getElementById('dailyBudget').textContent = `Daily: NPR ${dailyBudget.toLocaleString()}`;
+        document.getElementById('sidebarTotal').textContent = `NPR ${budget.toLocaleString()}`;
+
+        // Set budget breakdown
+        const breakdown = itinerary.budget_breakdown;
+        document.getElementById('budgetAccommodation').textContent = `NPR ${(breakdown.accommodation || 0).toLocaleString()}`;
+        document.getElementById('budgetMeals').textContent = `NPR ${(breakdown.meals || 0).toLocaleString()}`;
+        document.getElementById('budgetActivities').textContent = `NPR ${(breakdown.activities || 0).toLocaleString()}`;
+        document.getElementById('budgetTransport').textContent = `NPR ${(breakdown.transport || 0).toLocaleString()}`;
+        document.getElementById('budgetMisc').textContent = `NPR ${(breakdown.miscellaneous || 0).toLocaleString()}`;
+
+        // Render days
+        const daysContainer = document.getElementById('daysContainer');
+        daysContainer.innerHTML = '';
+
+        itinerary.days.forEach((day, index) => {
+            const dayHTML = renderDay(day, index + 1);
+            daysContainer.innerHTML += dayHTML;
+        });
+
+        // Set safety notes and tips
+        const aiResponse = itinerary.ai_response || {};
+        if (aiResponse.safety_notes) {
+            document.getElementById('safetyCard').style.display = 'block';
+            document.getElementById('safetyNotes').innerHTML = aiResponse.safety_notes;
+        }
+
+        // Quick tips
+        const quickTipsHTML = (aiResponse.travel_tips || []).slice(0, 5)
+            .map(tip => `<div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; gap: 0.75rem;">
+                <div style="color: #2d9b7a; flex-shrink: 0; font-size: 1.2rem;">
+                    <i class="fas fa-check"></i>
+                </div>
+                <p style="margin: 0; color: #6b7280; flex: 1;">${tip}</p>
+            </div>`)
+            .join('');
+        
+        if (quickTipsHTML) {
+            document.getElementById('quickTips').innerHTML = quickTipsHTML.slice(0, -40); // Remove last border
+        }
+    }
+
+    // Render Single Day
+    function renderDay(day, dayNumber) {
+        const accommodation = day.accommodation_name || 'To be arranged';
+        const accommodationType = day.accommodation_type_display || 'Hotel';
+        const accommodationCost = day.accommodation_estimated_cost_npr || 0;
+
+        const activitiesHTML = (day.activity_details || [])
+            .map(activity => `
+                <div class="activity-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; gap: 1rem;">
+                        <div>
+                            <span class="activity-type">${activity.activity_type_display}</span>
+                            <h6 style="margin: 0.5rem 0 0; font-weight: 700; color: #1a2332;">${activity.name}</h6>
+                        </div>
+                        <span class="activity-time">
+                            ${activity.time_start || 'Flexible'}${activity.time_end ? ' - ' + activity.time_end : ''}
+                        </span>
+                    </div>
+                    <p style="color: #6b7280; margin-bottom: 0.75rem; line-height: 1.6;">${activity.description}</p>
+                    ${activity.tips ? `<p style="color: #2d9b7a; font-size: 0.9rem; margin: 0; font-style: italic;">
+                        <i class="fas fa-lightbulb"></i> ${activity.tips}
+                    </p>` : ''}
+                    ${activity.estimated_cost_npr > 0 ? `<p style="color: #f97316; font-size: 0.9rem; margin: 0.625rem 0 0; font-weight: 600;">
+                        <i class="fas fa-ticket"></i> NPR ${activity.estimated_cost_npr.toLocaleString()}
+                    </p>` : ''}
+                </div>
+            `).join('');
+
+        return `
+            <div class="day-container">
+                <div class="day-header">
+                    <div class="day-number">
+                        <div class="day-label">DAY</div>
+                        <div class="day-value">${dayNumber}</div>
+                    </div>
+                    <div class="day-info">
+                        <h3>${day.title}</h3>
+                        <p><i class="fas fa-map-marker-alt" style="margin-right: 0.5rem;"></i> ${day.location_name || 'Nepal'}</p>
+                    </div>
+                </div>
+
+                <div class="accommodation-box">
+                    <h5><i class="fas fa-bed"></i> Accommodation</h5>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #1a2332; font-size: 1.1rem;">${accommodation}</strong><br>
+                            <small style="color: #6b7280;">${accommodationType}</small>
+                        </div>
+                        <div style="text-align: right; font-weight: 700; color: #2d9b7a; font-size: 1.2rem;">
+                            NPR ${accommodationCost.toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+
+                <h5 style="font-weight: 700; color: #1a2332; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-tasks" style="color: #2d9b7a;"></i> Activities & Things to Do
+                </h5>
+                <div class="activity-list">
+                    ${activitiesHTML}
+                </div>
+
+                ${day.packing_tips ? `
+                    <div style="background: #f3f4f6; padding: 1.25rem; border-radius: 12px; margin-top: 1.5rem; border-left: 4px solid #06b6d4;">
+                        <h6 style="font-weight: 700; margin-bottom: 0.5rem; color: #1a2332; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-backpack" style="color: #06b6d4;"></i> Packing Tips
+                        </h6>
+                        <p style="margin: 0; font-size: 0.95rem; color: #6b7280; line-height: 1.6;">${day.packing_tips}</p>
+                    </div>
+                ` : ''}
+
+                ${day.local_tips ? `
+                    <div style="background: #fffaed; padding: 1.25rem; border-radius: 12px; margin-top: 1rem; border-left: 4px solid #f97316;">
+                        <h6 style="font-weight: 700; margin-bottom: 0.5rem; color: #92400e; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-lightbulb" style="color: #f97316;"></i> Local Insights
+                        </h6>
+                        <p style="margin: 0; font-size: 0.95rem; color: #92400e; line-height: 1.6;">${day.local_tips}</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Print function
+    function printItinerary() {
+        window.print();
+    }
+</script>
+{% endblock %}
+        `;
+    }
+
+    // Print Itinerary
+    function printItinerary() {
+        window.print();
+    }
+</script>
+{% endblock %}
