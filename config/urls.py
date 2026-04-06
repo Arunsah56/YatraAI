@@ -16,9 +16,9 @@ api_patterns = [
     path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
     # App-specific APIs
-    path('api/itinerary/', include('apps.itinerary.urls')),
-    path('api/locations/', include('apps.locations.urls')),
-    path('api/tips/', include('apps.tips.urls')),
+    path('api/', include('apps.itinerary.urls')),
+    path('api/', include('apps.locations.urls')),
+    path('api/', include('apps.tips.urls')),
 ]
 
 urlpatterns = [

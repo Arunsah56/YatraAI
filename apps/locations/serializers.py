@@ -16,7 +16,7 @@ class LocationSerializer(serializers.ModelSerializer):
             'id', 'name', 'region', 'description', 'altitude',
             'latitude', 'longitude', 'best_time_visit', 'weather_info',
             'distance_from_kathmandu_km', 'travel_time_hours',
-            'primary_attraction', 'popularity_score', 'created_at'
+            'primary_attraction', 'emoji', 'popularity_score', 'created_at'
         ]
         read_only_fields = ['created_at']
 
@@ -37,13 +37,14 @@ class LocationDetailSerializer(LocationSerializer):
 class HiddenGemSerializer(serializers.ModelSerializer):
     """Serializer for HiddenGem model."""
     
-    location_name = serializers.CharField(source='location.name', read_only=True)
+    location = LocationSerializer(read_only=True)
+    difficulty_level = serializers.CharField(source='accessibility_level', read_only=True)
     
     class Meta:
         model = HiddenGem
         fields = [
-            'id', 'name', 'location', 'location_name', 'gem_type',
-            'description', 'why_special', 'accessibility_level',
+            'id', 'name', 'location', 'gem_type',
+            'description', 'why_special', 'accessibility_level', 'difficulty_level',
             'entry_fee_npr', 'entry_fee_foreigner_npr', 'best_time_visit',
             'visit_duration_hours', 'crowd_level', 'rating', 'created_at'
         ]

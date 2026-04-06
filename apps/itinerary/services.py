@@ -204,7 +204,7 @@ Ensure all costs are realistic and in NPR. Make the itinerary practical and safe
         tips_data: Dict = None
     ) -> Dict:
         """
-        Generate an itinerary using OpenAI API.
+        Generate an itinerary using OpenAI API or demo mode if API key not configured.
         
         Args:
             destination: Main destination
@@ -219,13 +219,14 @@ Ensure all costs are realistic and in NPR. Make the itinerary practical and safe
         
         Returns:
             Generated itinerary as dictionary
-        
-        Raises:
-            Exception: If API call fails or response is invalid
         """
         
+        # If API key is not configured, use demo mode
         if not self.api_key:
-            raise ValueError("OPENAI_API_KEY not configured")
+            logger.warning("OPENAI_API_KEY not configured. Using demo itinerary mode.")
+            return self._generate_demo_itinerary(
+                destination, number_of_days, budget_level, interests
+            )
         
         try:
             system_prompt = self.build_system_prompt()
@@ -280,6 +281,329 @@ Ensure all costs are realistic and in NPR. Make the itinerary practical and safe
         except Exception as e:
             logger.error(f"Error generating itinerary: {str(e)}")
             raise
+    
+    def _generate_demo_itinerary(
+        self,
+        destination: str,
+        number_of_days: int,
+        budget_level: str,
+        interests: List[str]
+    ) -> Dict:
+        """
+        Generate a demo itinerary when OpenAI API key is not configured.
+        Useful for testing the website without API access.
+        
+        Args:
+            destination: Main destination
+            number_of_days: Trip duration
+            budget_level: Budget level
+            interests: List of interests
+        
+        Returns:
+            Generated demo itinerary
+        """
+        
+        # Calculate realistic budgets based on level
+        daily_rates = {
+            'low': {'accommodation': 800, 'meals': 600, 'activities': 400, 'transport': 300, 'misc': 200},
+            'mid': {'accommodation': 2000, 'meals': 1500, 'activities': 1000, 'transport': 800, 'misc': 700},
+            'luxury': {'accommodation': 5000, 'meals': 3000, 'activities': 2500, 'transport': 1500, 'misc': 1000}
+        }
+        
+        rates = daily_rates.get(budget_level, daily_rates['mid'])
+        total_budget = (rates['accommodation'] + rates['meals'] + rates['activities'] + rates['transport'] + rates['misc']) * number_of_days
+        
+        demo_itineraries = {
+            'Kathmandu': {
+                'title': f'{number_of_days}-Day {destination} Adventure',
+                'summary': f'An exciting {number_of_days}-day exploration of {destination} with cultural sites, local experiences, and memorable adventures.',
+                'destination': destination,
+                'estimated_total_budget_npr': total_budget,
+                'budget_breakdown': {
+                    'accommodation': rates['accommodation'] * number_of_days,
+                    'meals': rates['meals'] * number_of_days,
+                    'activities': rates['activities'] * number_of_days,
+                    'transport': rates['transport'] * number_of_days,
+                    'miscellaneous': rates['misc'] * number_of_days
+                },
+                'daily_budget_npr': sum(rates.values()),
+                'days': [
+                    {
+                        'day_number': 1,
+                        'title': 'Arrival in Kathmandu',
+                        'description': 'Rest and acclimatize after arrival',
+                        'location': 'Kathmandu',
+                        'accommodation': {
+                            'name': 'Hotel in Thamel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Comfortable mid-range hotel'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '14:00',
+                                'time_end': '17:00',
+                                'name': 'Explore Thamel Area',
+                                'description': 'Get oriented in the tourist hub, shop and relax',
+                                'type': 'sightseeing',
+                                'location': 'Thamel',
+                                'estimated_cost_npr': rates['activities'] // 3,
+                                'importance_level': 'recommended',
+                                'tips': 'Many good cafes and restaurants available'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    },
+                    {
+                        'day_number': 2,
+                        'title': 'Cultural Tour',
+                        'description': 'Explore ancient temples and spiritual sites',
+                        'location': 'Kathmandu',
+                        'accommodation': {
+                            'name': 'Hotel in Thamel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Comfortable mid-range hotel'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '06:00',
+                                'time_end': '12:00',
+                                'name': 'Temple Tour - Swayambhunath & Boudhanath',
+                                'description': 'Visit two of Nepal\'s most sacred sites',
+                                'type': 'cultural',
+                                'location': 'Kathmandu Valley',
+                                'estimated_cost_npr': rates['activities'] // 2,
+                                'importance_level': 'must',
+                                'tips': 'Bring comfortable walking shoes and camera'
+                            },
+                            {
+                                'time_start': '14:00',
+                                'time_end': '17:00',
+                                'name': 'Pashupatinath Temple',
+                                'description': 'Sacred Hindu pilgrimage site',
+                                'type': 'spiritual',
+                                'location': 'Pashupatinath',
+                                'estimated_cost_npr': rates['activities'] // 4,
+                                'importance_level': 'recommended',
+                                'tips': 'Respect local customs and dress modestly'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    },
+                    {
+                        'day_number': 3,
+                        'title': 'Local Experiences',
+                        'description': 'Interactive cultural workshops',
+                        'location': 'Kathmandu',
+                        'accommodation': {
+                            'name': 'Hotel in Thamel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Comfortable mid-range hotel'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '09:00',
+                                'time_end': '12:00',
+                                'name': 'Pottery Workshop',
+                                'description': 'Learn traditional Nepali pottery making',
+                                'type': 'cultural',
+                                'location': 'Bhaktapur',
+                                'estimated_cost_npr': 1200,
+                                'importance_level': 'recommended',
+                                'tips': 'Perfect souvenir - bring home your creation'
+                            },
+                            {
+                                'time_start': '13:00',
+                                'time_end': '17:00',
+                                'name': 'Cooking Class',
+                                'description': 'Cook authentic Nepali dishes with a local chef',
+                                'type': 'food',
+                                'location': 'Kathmandu',
+                                'estimated_cost_npr': rates['activities'] // 2,
+                                'importance_level': 'recommended',
+                                'tips': 'Learn to make dal bhat and momo'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    },
+                ] + [
+                    {
+                        'day_number': i,
+                        'title': f'Exploration Day {i-3}',
+                        'description': 'Flexible day for personal exploration',
+                        'location': 'Kathmandu',
+                        'accommodation': {
+                            'name': 'Hotel in Thamel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Comfortable mid-range hotel'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '10:00',
+                                'time_end': '16:00',
+                                'name': 'Hidden Gems & Local Markets',
+                                'description': 'Explore local areas, visit hidden gems',
+                                'type': 'sightseeing',
+                                'location': 'Kathmandu',
+                                'estimated_cost_npr': rates['activities'],
+                                'importance_level': 'optional',
+                                'tips': 'Ask locals for hidden spots'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    }
+                    for i in range(4, number_of_days + 1)
+                ],
+                'travel_tips': [
+                    'Best time to visit: October-November',
+                    'Use local buses for transportation',
+                    'Try authentic dhaba restaurants',
+                    'Negotiate prices at local markets',
+                    'Respect local customs and traditions'
+                ]
+            },
+            'Pokhara': {
+                'title': f'{number_of_days}-Day {destination} Getaway',
+                'summary': f'A relaxing {number_of_days}-day getaway in {destination} with lake activities, adventure sports, and mountain views.',
+                'destination': destination,
+                'estimated_total_budget_npr': total_budget,
+                'budget_breakdown': {
+                    'accommodation': (rates['accommodation'] * 0.8) * number_of_days,
+                    'meals': (rates['meals'] * 0.9) * number_of_days,
+                    'activities': (rates['activities'] * 1.2) * number_of_days,
+                    'transport': (rates['transport'] * 0.7) * number_of_days,
+                    'miscellaneous': (rates['misc'] * 0.8) * number_of_days
+                },
+                'daily_budget_npr': sum(rates.values()),
+                'days': [
+                    {
+                        'day_number': 1,
+                        'title': 'Arrival in Pokhara',
+                        'description': 'Travel and settle into lakeside hotel',
+                        'location': 'Pokhara',
+                        'accommodation': {
+                            'name': 'Lakeside Hotel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Hotel with lake views'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '17:00',
+                                'time_end': '19:00',
+                                'name': 'Evening Lakeside Walk',
+                                'description': 'Relax and enjoy the sunset',
+                                'type': 'relaxation',
+                                'location': 'Phewa Lake',
+                                'estimated_cost_npr': 0,
+                                'importance_level': 'recommended',
+                                'tips': '6 hours drive from Kathmandu'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    },
+                    {
+                        'day_number': 2,
+                        'title': 'Phewa Lake Activities',
+                        'description': 'Lake exploration and water activities',
+                        'location': 'Pokhara',
+                        'accommodation': {
+                            'name': 'Lakeside Hotel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Hotel with lake views'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '05:30',
+                                'time_end': '07:30',
+                                'name': 'Sunrise at Sarangkot',
+                                'description': 'Watch sunrise over Phewa Lake',
+                                'type': 'sightseeing',
+                                'location': 'Sarangkot',
+                                'estimated_cost_npr': rates['activities'] // 3,
+                                'importance_level': 'must',
+                                'tips': 'Bring a camera and warm jacket'
+                            },
+                            {
+                                'time_start': '10:00',
+                                'time_end': '14:00',
+                                'name': 'Boating & Temple Visit',
+                                'description': 'Boat ride on Phewa Lake and visit Barahi Temple',
+                                'type': 'cultural',
+                                'location': 'Phewa Lake',
+                                'estimated_cost_npr': rates['activities'] // 2,
+                                'importance_level': 'recommended',
+                                'tips': 'Bring sunscreen and hat'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    },
+                ] + [
+                    {
+                        'day_number': i,
+                        'title': f'Adventure Day {i-2}',
+                        'description': 'Adventure activities and exploration',
+                        'location': 'Pokhara',
+                        'accommodation': {
+                            'name': 'Lakeside Hotel',
+                            'type': 'hotel',
+                            'estimated_cost_npr': rates['accommodation'],
+                            'description': 'Hotel with lake views'
+                        },
+                        'activities': [
+                            {
+                                'time_start': '08:00',
+                                'time_end': '15:00',
+                                'name': 'Paragliding or Zip-lining',
+                                'description': 'Thrilling adventure activities',
+                                'type': 'adventure',
+                                'location': 'Pokhara',
+                                'estimated_cost_npr': rates['activities'],
+                                'importance_level': 'optional',
+                                'tips': 'Book activities in advance'
+                            }
+                        ],
+                        'meals_budget_npr': rates['meals'],
+                        'transport_budget_npr': rates['transport']
+                    }
+                    for i in range(3, number_of_days + 1)
+                ],
+                'travel_tips': [
+                    'Best for adventure seekers',
+                    'Visit in clear seasons for mountain views',
+                    'Try local fish curry',
+                    'Book activities in advance during peak season'
+                ]
+            }
+        }
+        
+        # Get demo itinerary or use default
+        itinerary_data = demo_itineraries.get(destination, demo_itineraries['Kathmandu'])
+        
+        # Add note about demo mode
+        if budget_level == 'budget':
+            itinerary_data['note'] = 'Demo mode: Budget-friendly options'
+        elif budget_level == 'luxury':
+            itinerary_data['note'] = 'Demo mode: Luxury recommendations'
+        else:
+            itinerary_data['note'] = 'Demo mode: Mid-range options'
+        
+        logger.info(f"Generated demo itinerary for {destination}")
+        return {
+            'success': True,
+            'data': itinerary_data,
+            'raw_response': json.dumps(itinerary_data)
+        }
     
     def validate_itinerary_structure(self, itinerary_data: Dict) -> bool:
         """

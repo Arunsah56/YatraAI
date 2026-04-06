@@ -44,6 +44,7 @@ class Location(models.Model):
     distance_from_kathmandu_km = models.IntegerField(validators=[MinValueValidator(0)])
     travel_time_hours = models.FloatField(validators=[MinValueValidator(0)])
     primary_attraction = models.CharField(max_length=200)
+    emoji = models.CharField(max_length=10, default='🏔️', help_text="Emoji to represent the location")
     
     # Metadata
     popularity_score = models.IntegerField(

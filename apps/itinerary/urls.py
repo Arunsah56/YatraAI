@@ -7,7 +7,7 @@ from rest_framework.routers import DefaultRouter
 from .views import ItineraryViewSet, index_view, results_view, explore_view
 
 router = DefaultRouter()
-router.register(r'api', ItineraryViewSet, basename='itinerary')
+router.register(r'itinerary', ItineraryViewSet, basename='itinerary')
 
 urlpatterns = [
     # Frontend views
@@ -16,5 +16,5 @@ urlpatterns = [
     path('page/explore/', explore_view, name='explore'),
     
     # API endpoints
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
